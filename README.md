@@ -1,2 +1,2 @@
 # ttlock.io
-pythob wrapper for TTLock API
+python wrapper for TTLock API
