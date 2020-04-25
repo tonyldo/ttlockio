@@ -1,0 +1,16 @@
+{
+    "total": 2,
+    "pages": 1,
+    "pageNo": 1,
+    "pageSize": 1,
+    "list": [
+        {
+           "gatewayMac": "D6:E0:88:CE:EE:96",
+           "lockNum": 1,
+           "gatewayName": "gatewayttlock",
+           "isOnline": 1,
+           "gatewayVersion": 2,
+           "gatewayId": 34144
+        }
+     ]
+ }
