@@ -1,0 +1,20 @@
+{
+    "list": [
+        {
+            "lockId": 3879122,
+            "rssi": -61,
+            "lockAlias": "porta da sala",
+            "updateDate": 1587995253000,
+            "lockMac": "DA:FG:A5:2B:BA:6F",
+            "lockName": "M203C_5ccdd5"
+        },
+        {
+            "lockId": 1928723,
+            "rssi": -71,
+            "lockAlias": "porta da sala",
+            "updateDate": 1587995253000,
+            "lockMac": "DB:5B:A5:2B:ED:BA",
+            "lockName": "M204C_aa55bb"
+        }
+    ]
+}
