@@ -8,9 +8,14 @@ import pytest
 
 FAKE_CLIENT_ID='34144ff6749ea9ced96cbd2470db12f2'
 FAKE_ACCESS_TOKEN='cc8d7ab5acb3b65998cec69129235155'
+TOKEN_ERROR_CODES = [10003]
+INVALID_CURRENT_TIMESTAMP_ERROR = 80000
+LOCK_STATE_RESPONSE = '{"state": 1}'
+LOCK_ELECTRIC_QUANTITY_RESPONSE = '{"electricQuantity": 68}'
 DATE_TIME_ERROR_RESPONSE = '{"errcode": 80000,"errmsg": "date must be current time","description": ""}'
 INVALID_TOKEN_RESPONSE = '{"errcode": 10003,"errmsg": "invalid token","description": ""}'
 MOCK_JSON_PATH = './tests/data/'
+
 
 def response_lock_records_list_callback(request, context):
     pageNo = re.compile('pageNo=\\d').search(request.url).group()[7:]
@@ -47,20 +52,23 @@ def test_ttlock_get_gateways_list_single_page():
     assert response[0].get('gatewayId')==35155
     
 def test_ttlock_get_gateways_list_expired_token():
-    with pytest.raises(PermissionError):
+    with pytest.raises(ttlockwrapper.ttlock.TTlockAPIError) as ttlockerror:
         with requests_mock.Mocker() as m:
             m.register_uri('GET', re.compile(ttlockwrapper.constants.GATEWAY_LIST_RESOURCE)
             , text=INVALID_TOKEN_RESPONSE, status_code=200)
             ttlockwrapper.TTLock(clientId=FAKE_CLIENT_ID
             ,accessToken=FAKE_ACCESS_TOKEN).gateways_list(pageNo=1,pageSize=1)
+        assert ttlockerror.error_code in TOKEN_ERROR_CODES
 
 def test_ttlock_get_gateways_list_date_current():
-    with pytest.raises(ValueError,match=r'API_ERROR'):
+    with pytest.raises(ttlockwrapper.ttlock.TTlockAPIError) as ttlockerror:
         with requests_mock.Mocker() as m:
             m.register_uri('GET', re.compile(ttlockwrapper.constants.GATEWAY_LIST_RESOURCE)
             , text=DATE_TIME_ERROR_RESPONSE, status_code=200)
             ttlockwrapper.TTLock(clientId=FAKE_CLIENT_ID
             ,accessToken=FAKE_ACCESS_TOKEN).gateways_list(pageNo=1,pageSize=1)
+        
+        assert ttlockerror.error_code==INVALID_CURRENT_TIMESTAMP_ERROR
 
 def test_ttlock_get_gateways_list_invalid_request():
     with pytest.raises(requests.HTTPError):
@@ -84,7 +92,7 @@ def test_ttlock_get_locks_gateway_list():
     assert response[1].get('lockId' )==1928723
 
 def test_ttlock_get_locks_gateway_list_invalid_gatewayId():
-    with pytest.raises(ValueError,match=r'INVALID_GATEWAY_ID'):
+    with pytest.raises(ttlockwrapper.ttlock.TTlockAPIError):
         with requests_mock.Mocker() as m:
             m.register_uri('GET', re.compile(ttlockwrapper.constants.LOCKS_PER_GATEWAY_RESOURCE), text='')
             ttlockwrapper.TTLock(clientId=FAKE_CLIENT_ID
@@ -100,8 +108,22 @@ def test_ttlock_get_lock_records_list_paginated():
     assert len(response)==80
 
 def test_ttlock_get_lock_records_list__invalid_lock_id():
-    with pytest.raises(ValueError,match=r'INVALID_LOCK_ID'):
+    with pytest.raises(ttlockwrapper.ttlock.TTlockAPIError):
         with requests_mock.Mocker() as m:
             m.register_uri('GET', re.compile(ttlockwrapper.constants.LOCK_RECORDS_URL), text='')
             ttlockwrapper.TTLock(clientId=FAKE_CLIENT_ID
             ,accessToken=FAKE_ACCESS_TOKEN).lock_records_list()
+
+def test_ttlock_get_lock_state():
+    with requests_mock.Mocker() as m:
+        m.register_uri('GET', re.compile(ttlockwrapper.constants.LOCK_STATE_RESOURCE), text=LOCK_STATE_RESPONSE)
+        state = ttlockwrapper.TTLock(clientId=FAKE_CLIENT_ID
+        ,accessToken=FAKE_ACCESS_TOKEN).lock_state(lockId=1928723)
+    assert state == 1 
+
+def test_ttlock_get_lock_electric_quantity():
+    with requests_mock.Mocker() as m:
+        m.register_uri('GET', re.compile(ttlockwrapper.constants.LOCK_ELECTRIC_QUANTITY_RESOURCE), text=LOCK_ELECTRIC_QUANTITY_RESPONSE)
+        electric_quantity = ttlockwrapper.TTLock(clientId=FAKE_CLIENT_ID
+        ,accessToken=FAKE_ACCESS_TOKEN).lock_electric_quantity(lockId=1928723)
+    assert electric_quantity == 68 

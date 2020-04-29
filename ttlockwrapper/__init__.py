@@ -1,1 +1,1 @@
-from .ttlock import TTLock
+from .ttlock import TTLock,TTlockAPIError
