@@ -1,10 +1,11 @@
 import setuptools
+from pathlib import Path
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="ttlockio", # Replace with your own username
+    name="ttlockio", 
     version="0.0.1",
     author="Antonio Campos",
     author_email="tonyldo@gmail.com",
@@ -19,4 +20,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
+    install_requires=[
+        l.strip() for l in Path('requirements.txt').read_text('utf-8').splitlines()
+    ],
 )
