@@ -12,7 +12,6 @@ TOKEN_ERROR_CODES = [10003]
 INVALID_CURRENT_TIMESTAMP_ERROR = 80000
 LOCK_STATE_RESPONSE = '{"state": 1}'
 LOCK_ELECTRIC_QUANTITY_RESPONSE = '{"electricQuantity": 68}'
-DATE_TIME_ERROR_RESPONSE = '{"errcode": 80000,"errmsg": "date must be current time","description": ""}'
 INVALID_TOKEN_RESPONSE = '{"errcode": 10003,"errmsg": "invalid token","description": ""}'
 MOCK_JSON_PATH = './tests/data/'
 
@@ -59,16 +58,6 @@ def test_ttlock_get_gateways_list_expired_token():
             ttlockwrapper.TTLock(clientId=FAKE_CLIENT_ID
             ,accessToken=FAKE_ACCESS_TOKEN).gateways_list(pageNo=1,pageSize=1)
         assert ttlockerror.error_code in TOKEN_ERROR_CODES
-
-def test_ttlock_get_gateways_list_date_current():
-    with pytest.raises(ttlockwrapper.ttlock.TTlockAPIError) as ttlockerror:
-        with requests_mock.Mocker() as m:
-            m.register_uri('GET', re.compile(ttlockwrapper.constants.GATEWAY_LIST_RESOURCE)
-            , text=DATE_TIME_ERROR_RESPONSE, status_code=200)
-            ttlockwrapper.TTLock(clientId=FAKE_CLIENT_ID
-            ,accessToken=FAKE_ACCESS_TOKEN).gateways_list(pageNo=1,pageSize=1)
-        
-        assert ttlockerror.error_code==INVALID_CURRENT_TIMESTAMP_ERROR
 
 def test_ttlock_get_gateways_list_invalid_request():
     with pytest.raises(requests.HTTPError):
@@ -127,3 +116,50 @@ def test_ttlock_get_lock_electric_quantity():
         electric_quantity = ttlockwrapper.TTLock(clientId=FAKE_CLIENT_ID
         ,accessToken=FAKE_ACCESS_TOKEN).lock_electric_quantity(lockId=1928723)
     assert electric_quantity == 68 
+
+
+def test_ttlock_no_mock_request():
+    with pytest.raises(ttlockwrapper.ttlock.TTlockAPIError) as ttLock_error:
+        response = ttlockwrapper.TTLock(clientId=FAKE_CLIENT_ID
+                    ,accessToken=FAKE_ACCESS_TOKEN).gateways_list(pageNo=1,pageSize=20)
+        assert response.status_code in ttlockwrapper.constants.GOOD_HTTP_CODES
+        assert not ttLock_error.error_code == INVALID_CURRENT_TIMESTAMP_ERROR
+    
+    with pytest.raises(ttlockwrapper.ttlock.TTlockAPIError) as ttLock_error:
+        response = ttlockwrapper.TTLock(clientId=FAKE_CLIENT_ID
+                    ,accessToken=FAKE_ACCESS_TOKEN).locks_gateway_list()
+        assert response.status_code in ttlockwrapper.constants.GOOD_HTTP_CODES
+        assert not ttLock_error.error_code == INVALID_CURRENT_TIMESTAMP_ERROR
+    
+    with pytest.raises(ttlockwrapper.ttlock.TTlockAPIError) as ttLock_error:
+        response = ttlockwrapper.TTLock(clientId=FAKE_CLIENT_ID
+                    ,accessToken=FAKE_ACCESS_TOKEN).lock_records_list(pageNo=1,pageSize=20)
+        assert response.status_code in ttlockwrapper.constants.GOOD_HTTP_CODES
+        assert not ttLock_error.error_code == INVALID_CURRENT_TIMESTAMP_ERROR  
+    
+    with pytest.raises(ttlockwrapper.ttlock.TTlockAPIError) as ttLock_error:
+        response = ttlockwrapper.TTLock(clientId=FAKE_CLIENT_ID
+                    ,accessToken=FAKE_ACCESS_TOKEN).lock_state()
+        assert response.status_code in ttlockwrapper.constants.GOOD_HTTP_CODES
+        assert not ttLock_error.error_code == INVALID_CURRENT_TIMESTAMP_ERROR
+    
+    with pytest.raises(ttlockwrapper.ttlock.TTlockAPIError) as ttLock_error:
+        response = ttlockwrapper.TTLock(clientId=FAKE_CLIENT_ID
+                    ,accessToken=FAKE_ACCESS_TOKEN).lock_electric_quantity()
+        assert response.status_code in ttlockwrapper.constants.GOOD_HTTP_CODES
+        assert not ttLock_error.error_code == INVALID_CURRENT_TIMESTAMP_ERROR
+
+def test_ttlock_no_mock_invalid_date_current():
+    with pytest.raises(ttlockwrapper.ttlock.TTlockAPIError) as ttLock_error:
+        _url_request = ttlockwrapper.constants.GATEWAY_LIST_URL.format(
+            ttlockwrapper.constants.API_URI,
+            ttlockwrapper.constants.GATEWAY_LIST_RESOURCE,
+            FAKE_CLIENT_ID,
+            FAKE_ACCESS_TOKEN,
+            1,
+            20,
+            ttlockwrapper.TTLock().__get_current_millis__()-10000,
+        )
+        ttlockwrapper.TTLock(clientId=FAKE_CLIENT_ID
+                    ,accessToken=FAKE_ACCESS_TOKEN).lock_electric_quantity()
+        assert ttLock_error.error_code==INVALID_CURRENT_TIMESTAMP_ERROR

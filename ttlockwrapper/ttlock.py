@@ -1,16 +1,16 @@
 import requests
+import time
 from .constants import *
-from datetime import datetime
 
 class TTlockAPIError(Exception):
-    def __init_(self,error_code=-3,menssage='Invalid Parameter'):
+    def __init__(self,error_code=-3,menssage='Invalid Parameter'):
         self.error_code = error_code
         self.menssage=menssage
     def __str__(self):
         return 'Error returned from TTlockAPI: Error_code {} - {}'.format(self.error_code,self.menssage)
 
 class TTLock():
-    def __init__(self, clientId,accessToken):
+    def __init__(self, clientId=None,accessToken=None):
         self.clientId = clientId
         self.accessToken = accessToken
 
@@ -22,14 +22,17 @@ class TTLock():
             self.accessToken,
             pageNo,
             pageSize,
-            datetime.timestamp(datetime.now()),
+            self.__get_current_millis__(),
         )
-        _response = self.send_request(_url_request).json()
+        _response = self.__send_request__(_url_request).json()
 
         if len(_response.get(LIST_FIELD)) == 0:
             return _response.get(LIST_FIELD) 
         else:
             return _response.get(LIST_FIELD)  + self.gateways_list(pageNo=pageNo + 1,pageSize=pageSize)
+
+    def __get_current_millis__(self):
+        return int(round(time.time() * 1000))
 
     def locks_gateway_list(self,gatewayId=None):
         if not gatewayId:
@@ -41,9 +44,9 @@ class TTLock():
             self.clientId,
             self.accessToken,
             gatewayId,
-            datetime.timestamp(datetime.now()),
+            self.__get_current_millis__(),
         )
-        return self.send_request(_url_request).json().get(LIST_FIELD)
+        return self.__send_request__(_url_request).json().get(LIST_FIELD)
     
     def lock_records_list(self,lockId=None,pageNo=1,pageSize=20,startDate=0,endDate=0):
         if not lockId:
@@ -59,9 +62,9 @@ class TTLock():
             pageSize,
             startDate,
             endDate,
-            datetime.timestamp(datetime.now()),
+            self.__get_current_millis__(),
         )
-        _response = self.send_request(_url_request).json()
+        _response = self.__send_request__(_url_request).json()
 
         if len(_response.get(LIST_FIELD)) == 0:
             return _response.get(LIST_FIELD) 
@@ -77,9 +80,9 @@ class TTLock():
             self.clientId,
             self.accessToken,
             lockId,
-            datetime.timestamp(datetime.now()),
+            self.__get_current_millis__(),
         )
-        return self.send_request(_url_request).json().get(STATE_FIELD)
+        return self.__send_request__(_url_request).json().get(STATE_FIELD)
 
     def lock_electric_quantity(self,lockId=None):
         if not lockId:
@@ -90,16 +93,16 @@ class TTLock():
             self.clientId,
             self.accessToken,
             lockId,
-            datetime.timestamp(datetime.now()),
+            self.__get_current_millis__(),
         )
-        return self.send_request(_url_request).json().get(ELECTRIC_QUANTITY_FIELD)
+        return self.__send_request__(_url_request).json().get(ELECTRIC_QUANTITY_FIELD)
     
-    def send_request(self, _url_request):
+    def __send_request__(self, _url_request):
         _headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         _response = requests.request('GET',_url_request, headers=_headers)
         if _response.status_code not in GOOD_HTTP_CODES:
             raise requests.HTTPError(_response.status_code)
         elif _response.json().get(ERROR_CODE_FIELD) :
-            raise TTlockAPIError(_response.json().get(ERROR_CODE_FIELD),_response.json().get(MENSSAGE_FIELD))
+            raise TTlockAPIError(error_code=_response.json().get(ERROR_CODE_FIELD),menssage=_response.json().get(MENSSAGE_FIELD))
 
         return _response
