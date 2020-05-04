@@ -47,6 +47,31 @@ class TTLock():
             self.__get_current_millis__(),
         )
         return self.__send_request__(_url_request).json().get(LIST_FIELD)
+
+    def generate_lock_records(self,lockId=None,pageSize=20,startDate=0,endDate=0):
+        if not lockId:
+            raise TTlockAPIError()
+
+        pageNo = 1
+        totalPages = 1
+        while pageNo<=totalPages:
+            _url_request = LOCK_RECORDS_URL.format(
+                API_URI,
+                LOCK_RECORDS_RESOURCE,
+                self.clientId,
+                self.accessToken,
+                lockId,
+                pageNo,
+                pageSize,
+                startDate,
+                endDate,
+                self.__get_current_millis__(),
+            )
+            _response = self.__send_request__(_url_request).json()
+            yield _response.get(LIST_FIELD)
+            totalPages = _response.get(PAGES_FIELD)
+            pageNo=pageNo+1
+    
     
     def lock_records_list(self,lockId=None,pageNo=1,pageSize=20,startDate=0,endDate=0):
         if not lockId:

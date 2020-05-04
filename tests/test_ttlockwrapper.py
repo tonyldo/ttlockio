@@ -90,11 +90,10 @@ def test_ttlock_get_locks_gateway_list_invalid_gatewayId():
 def test_ttlock_get_lock_records_list_paginated():
     with requests_mock.Mocker() as m:
         m.register_uri('GET', re.compile(ttlockwrapper.constants.LOCK_RECORDS_RESOURCE), text=response_lock_records_list_callback)
-        response = ttlockwrapper.TTLock(clientId=FAKE_CLIENT_ID
-                     ,accessToken=FAKE_ACCESS_TOKEN).lock_records_list(lockId=1928723,pageNo=1,pageSize=20)
-
-    assert isinstance(response, list)
-    assert len(response)==80
+        response_generator = ttlockwrapper.TTLock(clientId=FAKE_CLIENT_ID
+                     ,accessToken=FAKE_ACCESS_TOKEN).generate_lock_records(lockId=1928723,pageSize=20)
+        for records in response_generator:
+            assert isinstance(records, list)
 
 def test_ttlock_get_lock_records_list__invalid_lock_id():
     with pytest.raises(ttlockwrapper.ttlock.TTlockAPIError):
