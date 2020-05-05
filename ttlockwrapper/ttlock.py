@@ -13,23 +13,28 @@ class TTLock():
     def __init__(self, clientId=None,accessToken=None):
         self.clientId = clientId
         self.accessToken = accessToken
+    
+    def generate_gateways(self,pageSize=20):
+        pageNo = 1
+        totalPages = 1
+        while self.__verify_page__(pageNo, totalPages):
+            _url_request = GATEWAY_LIST_URL.format(
+                API_URI,
+                GATEWAY_LIST_RESOURCE,
+                self.clientId,
+                self.accessToken,
+                pageNo,
+                pageSize,
+                self.__get_current_millis__(),
+            )
+            _response = self.__send_request__(_url_request).json()
+            yield _response.get(LIST_FIELD)
+            totalPages = _response.get(PAGES_FIELD)
+            pageNo=pageNo+1
 
-    def gateways_list(self,pageNo=1,pageSize=20):
-        _url_request = GATEWAY_LIST_URL.format(
-            API_URI,
-            GATEWAY_LIST_RESOURCE,
-            self.clientId,
-            self.accessToken,
-            pageNo,
-            pageSize,
-            self.__get_current_millis__(),
-        )
-        _response = self.__send_request__(_url_request).json()
-
-        if len(_response.get(LIST_FIELD)) == 0:
-            return _response.get(LIST_FIELD) 
-        else:
-            return _response.get(LIST_FIELD)  + self.gateways_list(pageNo=pageNo + 1,pageSize=pageSize)
+    @classmethod
+    def __verify_page__(cls,pageNo, totalPages):
+        return pageNo<=totalPages
 
     def __get_current_millis__(self):
         return int(round(time.time() * 1000))
@@ -54,7 +59,7 @@ class TTLock():
 
         pageNo = 1
         totalPages = 1
-        while pageNo<=totalPages:
+        while self.__verify_page__(pageNo, totalPages):
             _url_request = LOCK_RECORDS_URL.format(
                 API_URI,
                 LOCK_RECORDS_RESOURCE,
@@ -72,30 +77,6 @@ class TTLock():
             totalPages = _response.get(PAGES_FIELD)
             pageNo=pageNo+1
     
-    
-    def lock_records_list(self,lockId=None,pageNo=1,pageSize=20,startDate=0,endDate=0):
-        if not lockId:
-            raise TTlockAPIError()
-
-        _url_request = LOCK_RECORDS_URL.format(
-            API_URI,
-            LOCK_RECORDS_RESOURCE,
-            self.clientId,
-            self.accessToken,
-            lockId,
-            pageNo,
-            pageSize,
-            startDate,
-            endDate,
-            self.__get_current_millis__(),
-        )
-        _response = self.__send_request__(_url_request).json()
-
-        if len(_response.get(LIST_FIELD)) == 0:
-            return _response.get(LIST_FIELD) 
-        else:
-            return _response.get(LIST_FIELD)  + self.lock_records_list(lockId,pageNo=pageNo + 1,pageSize=pageSize,startDate=startDate,endDate=endDate)
-
     def lock_state(self,lockId=None):
         if not lockId:
             raise TTlockAPIError()

@@ -6,14 +6,15 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="ttlockio", 
-    version="0.0.1",
+    version="0.1.0",
     author="Antonio Campos",
     author_email="tonyldo@gmail.com",
     description="Python wrapper for TTLock API",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/tonyldo/ttlock.io",
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
+    include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
