@@ -4,9 +4,7 @@ from ttlockwrapper import TTLock,TTlockAPIError, constants
 import requests_mock
 import requests
 import re
-import mock 
 import pytest
-from pytest_mock import mocker 
 
 FAKE_CLIENT_ID='34144ff6749ea9ced96cbd2470db12f2'
 FAKE_ACCESS_TOKEN='cc8d7ab5acb3b65998cec69129235155'
