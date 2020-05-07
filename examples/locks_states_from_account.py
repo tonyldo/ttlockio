@@ -5,7 +5,7 @@ from ttlockwrapper import TTLock
 
 """ 
 To call this script:
-$ git clone this_repos
+$ git clone this_repo
 $ pip3 install -r requirements.txt
 $ python3 examples/locks_states_from_account.py YOUR_TTLOCK_CLIENT_ID YOUR_TTLOCK_TOKEN
 """
@@ -14,10 +14,8 @@ if __name__ == "__main__":
     clientId = str(sys.argv[1])
     token = str(sys.argv[2])
     ttlock = TTLock(clientId,token)
-    
-    gateways = []
-    for gatewayPage in ttlock.generate_gateways():
-        gateways = gateways+gatewayPage
+
+    gateways = [gateway for gateway in ttlock.generate_gateways()]
 
     locks = []
     for gateway in gateways:

@@ -28,7 +28,8 @@ class TTLock():
                 self.__get_current_millis__(),
             )
             _response = self.__send_request__(_url_request).json()
-            yield _response.get(LIST_FIELD)
+            for gateway in _response.get(LIST_FIELD):
+                yield gateway
             totalPages = _response.get(PAGES_FIELD)
             pageNo=pageNo+1
 
@@ -51,7 +52,9 @@ class TTLock():
             gatewayId,
             self.__get_current_millis__(),
         )
-        return self.__send_request__(_url_request).json().get(LIST_FIELD)
+        
+        for lock in self.__send_request__(_url_request).json().get(LIST_FIELD):
+            yield lock
 
     def generate_lock_records(self,lockId=None,pageSize=20,startDate=0,endDate=0):
         if not lockId:
@@ -73,7 +76,8 @@ class TTLock():
                 self.__get_current_millis__(),
             )
             _response = self.__send_request__(_url_request).json()
-            yield _response.get(LIST_FIELD)
+            for records in _response.get(LIST_FIELD):
+                yield records
             totalPages = _response.get(PAGES_FIELD)
             pageNo=pageNo+1
     
