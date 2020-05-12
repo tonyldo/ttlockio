@@ -33,18 +33,18 @@ def test_ttlock_get_gateways_list_paginated():
     with requests_mock.Mocker() as m:
         m.register_uri('GET', re.compile(constants.GATEWAY_LIST_RESOURCE), text=response_gateway_list_callback)
         response_generator = TTLock(clientId=FAKE_CLIENT_ID
-                     ,accessToken=FAKE_ACCESS_TOKEN).generate_gateways(pageSize=1)
+                     ,accessToken=FAKE_ACCESS_TOKEN).get_gateway_generator(pageSize=1)
         gateways = [gateway for gateway in response_generator]
         assert len(gateways)==2
 
-def test_ttlock_get_gateways_list_single_page(mocker):
+def test_ttlock_get_gateways_stop_iteration(mocker):
     """Tests API call to get a gateways from a account""" 
     with requests_mock.Mocker() as m:
         mocker.patch.object(TTLock, '__verify_page__') 
         TTLock.__verify_page__.return_value = False 
         m.register_uri('GET', re.compile(constants.GATEWAY_LIST_RESOURCE), text=response_gateway_list_callback)
         response_generator = TTLock(clientId=FAKE_CLIENT_ID
-                   ,accessToken=FAKE_ACCESS_TOKEN).generate_gateways(pageSize=1)
+                   ,accessToken=FAKE_ACCESS_TOKEN).get_gateway_generator(pageSize=1)
         with pytest.raises(StopIteration): 
             next(response_generator) 
 
@@ -54,7 +54,7 @@ def test_ttlock_get_locks_gateway_list():
     with requests_mock.Mocker() as m:
         m.register_uri('GET', re.compile(constants.LOCKS_PER_GATEWAY_RESOURCE), text=mock_response)
         response_generator = TTLock(clientId=FAKE_CLIENT_ID
-                     ,accessToken=FAKE_ACCESS_TOKEN).locks_gateway_list(gatewayId=35155)
+                     ,accessToken=FAKE_ACCESS_TOKEN).get_locks_per_gateway_generator(gatewayId=35155)
         lock_list = [lock for lock in response_generator]
     
     assert isinstance(lock_list, list)
@@ -65,7 +65,7 @@ def test_ttlock_get_lock_records_list_paginated():
     with requests_mock.Mocker() as m:
         m.register_uri('GET', re.compile(constants.LOCK_RECORDS_RESOURCE), text=response_lock_records_list_callback)
         response_generator = TTLock(clientId=FAKE_CLIENT_ID
-                     ,accessToken=FAKE_ACCESS_TOKEN).generate_lock_records(lockId=1928723,pageSize=20)
+                     ,accessToken=FAKE_ACCESS_TOKEN).get_lock_records_generator(lockId=1928723,pageSize=20)
         record_list = [record for record in response_generator]
         assert len(record_list)==80
 
@@ -112,3 +112,15 @@ def test_ttlock_no_mock_invalid_date_current():
         TTLock(clientId=FAKE_CLIENT_ID
                     ,accessToken=FAKE_ACCESS_TOKEN).lock_electric_quantity()
         assert ttLock_error.error_code==INVALID_CURRENT_TIMESTAMP_ERROR
+
+def test_lock():
+    with requests_mock.Mocker() as m:
+        m.register_uri('GET', re.compile(constants.LOCK_RESOURCE), text='{"errcode": 0,"errmsg": "none error message or means yes","description": "表示成功或是"}')
+        assert TTLock(clientId=FAKE_CLIENT_ID
+        ,accessToken=FAKE_ACCESS_TOKEN).lock(lockId=1928723)
+
+def test_unlock():
+    with requests_mock.Mocker() as m:
+        m.register_uri('GET', re.compile(constants.UNLOCK_RESOURCE), text='{"errcode": 0,"errmsg": "none error message or means yes","description": "表示成功或是"}')
+        assert TTLock(clientId=FAKE_CLIENT_ID
+        ,accessToken=FAKE_ACCESS_TOKEN).unlock(lockId=1928723)

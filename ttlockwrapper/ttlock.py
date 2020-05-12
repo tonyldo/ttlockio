@@ -14,7 +14,7 @@ class TTLock():
         self.clientId = clientId
         self.accessToken = accessToken
     
-    def generate_gateways(self,pageSize=20):
+    def get_gateway_generator(self,pageSize=20):
         pageNo = 1
         totalPages = 1
         while self.__verify_page__(pageNo, totalPages):
@@ -40,7 +40,7 @@ class TTLock():
     def __get_current_millis__(self):
         return int(round(time.time() * 1000))
 
-    def locks_gateway_list(self,gatewayId=None):
+    def get_locks_per_gateway_generator(self,gatewayId=None):
         if not gatewayId:
             raise TTlockAPIError()
 
@@ -56,7 +56,7 @@ class TTLock():
         for lock in self.__send_request__(_url_request).json().get(LIST_FIELD):
             yield lock
 
-    def generate_lock_records(self,lockId=None,pageSize=20,startDate=0,endDate=0):
+    def get_lock_records_generator(self,lockId=None,pageSize=20,startDate=0,endDate=0):
         if not lockId:
             raise TTlockAPIError()
 
@@ -107,6 +107,41 @@ class TTLock():
         )
         return self.__send_request__(_url_request).json().get(ELECTRIC_QUANTITY_FIELD)
     
+    def lock(self,lockId=None):
+        if not lockId:
+            raise TTlockAPIError()
+
+        _url_request = LOCK_QUERY_URL.format(
+            API_URI,
+            LOCK_RESOURCE,
+            self.clientId,
+            self.accessToken,
+            lockId,
+            self.__get_current_millis__(),
+        )
+        return self.__is_erro_code_success__(self.__send_request__(_url_request).json().get(ERROR_CODE_FIELD))
+
+    def unlock(self,lockId=None):
+        if not lockId:
+            raise TTlockAPIError()
+
+        _url_request = LOCK_QUERY_URL.format(
+            API_URI,
+            UNLOCK_RESOURCE,
+            self.clientId,
+            self.accessToken,
+            lockId,
+            self.__get_current_millis__(),
+        )
+        return self.__is_erro_code_success__(self.__send_request__(_url_request).json().get(ERROR_CODE_FIELD))
+
+
+    def __is_erro_code_success__(self,erroCode=None):
+        if not erroCode and erroCode==0:
+            return True
+        else:
+            return False
+
     def __send_request__(self, _url_request):
         _headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         _response = requests.request('GET',_url_request, headers=_headers)
