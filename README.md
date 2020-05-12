@@ -39,5 +39,5 @@ $ curl --location --request POST 'https://api.ttlock.com/oauth2/token?client_id=
 $ pip install ttlockio 
 $ python3
 >>import ttlockwrapper
->>TTLock(clientId=YOUR_CLIENT_ID,accessToken=YOUR_ACCESS_TOKEN).generate_gateways()
+>>TTLock(clientId=YOUR_CLIENT_ID,accessToken=YOUR_ACCESS_TOKEN).get_gateway_generator()
 ```

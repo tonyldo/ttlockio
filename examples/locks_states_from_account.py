@@ -15,11 +15,11 @@ if __name__ == "__main__":
     token = str(sys.argv[2])
     ttlock = TTLock(clientId,token)
 
-    gateways = [gateway for gateway in ttlock.get_gateway_generator()]
+    gateways = list(ttlock.get_gateway_generator())
 
     locks = []
     for gateway in gateways:
-        locks += [lock for lock in ttlock.get_locks_per_gateway_generator(gateway.get("gatewayId"))]
+        locks += list(ttlock.get_locks_per_gateway_generator(gateway.get("gatewayId")))
     
     for lock in locks:
         print('Eletrict quantity: {}%'.format(ttlock.lock_electric_quantity(lock.get('lockId'))))
