@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="ttlockio", 
-    version="0.1.1",
+    version="0.1.2",
     author="Antonio Campos",
     author_email="tonyldo@gmail.com",
     description="Python wrapper for TTLock API",
