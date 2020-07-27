@@ -145,9 +145,8 @@ class TTLock():
     def __send_request__(self, _url_request):
         _headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         _response = requests.request('GET',_url_request, headers=_headers)
-        if _response.status_code not in GOOD_HTTP_CODES:
-            raise requests.HTTPError(_response.status_code)
-        elif _response.json().get(ERROR_CODE_FIELD) :
+        _response.raise_for_status()
+        if _response.json().get(ERROR_CODE_FIELD) :
             raise TTlockAPIError(error_code=_response.json().get(ERROR_CODE_FIELD),menssage=_response.json().get(MENSSAGE_FIELD))
 
         return _response

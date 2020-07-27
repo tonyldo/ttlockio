@@ -124,3 +124,13 @@ def test_unlock():
         m.register_uri('GET', re.compile(constants.UNLOCK_RESOURCE), text='{"errcode": 0,"errmsg": "none error message or means yes","description": "表示成功或是"}')
         assert TTLock(clientId=FAKE_CLIENT_ID
         ,accessToken=FAKE_ACCESS_TOKEN).unlock(lockId=1928723)
+
+def test__send_request__():
+    with pytest.raises(requests.exceptions.HTTPError):   
+        with requests_mock.Mocker() as m:
+            m.register_uri('GET', re.compile(constants.UNLOCK_RESOURCE), text='Not Found', status_code=403)
+            assert TTLock(clientId=FAKE_CLIENT_ID,accessToken=FAKE_ACCESS_TOKEN).unlock(lockId=1928723)
+    with requests_mock.Mocker() as m:
+        m.register_uri('GET', re.compile(constants.UNLOCK_RESOURCE), text='{"errcode": 0,"errmsg": "none error message or means yes","description": "表示成功或是"}')
+        assert TTLock(clientId=FAKE_CLIENT_ID
+        ,accessToken=FAKE_ACCESS_TOKEN).unlock(lockId=1928723)    
