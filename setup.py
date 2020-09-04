@@ -6,7 +6,8 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="ttlockio", 
-    version="0.1.3",
+    version="0.1.5",
+    scripts=['bin/create_access_token','bin/create_user_and_access_token','bin/refresh_access_token'],
     author="Antonio Campos",
     author_email="tonyldo@gmail.com",
     description="Python wrapper for TTLock API",

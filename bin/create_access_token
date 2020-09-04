@@ -1,0 +1,28 @@
+#!/usr/bin/env python
+
+import sys
+import json
+from ttlockwrapper.ttlock import TTlockAPIError
+from ttlockwrapper import TTLock,constants
+
+'''
+To call this script:
+$ pip3 install ttlockio
+$ refresh_access_token YOUR_TTLOCK_CLIENT_ID YOUR_TTLOCK_CLIENT_SECRET REFRESH_TOKEN REDIRECT_URI
+"YOUR_TTLOCK_CLIENT_ID" and "YOUR_TTLOCK_CLIENT_SECRET" 
+"YOUR_USER", "YOUR_PASS" your user and pass
+"REDIRECT_URI" Ex: https://yourdomain.com/
+'''
+
+clientId = str(sys.argv[1])
+clientSecret = str(sys.argv[2])
+user = str(sys.argv[3])
+password = str(sys.argv[4])
+redirect_url = str(sys.argv[5])
+
+result=TTLock.get_token(clientId,clientSecret,user,password,redirect_url)
+if result.get(constants.EXPIRE_TIME_TOKEN_FIELD):
+    parsed = json.loads(result)
+    print(json.dumps(parsed, indent=2, sort_keys=False))
+else:
+    raise TTlockAPIError()

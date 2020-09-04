@@ -1,4 +1,5 @@
 import requests
+import hashlib
 import time
 from .constants import *
 
@@ -10,6 +11,74 @@ class TTlockAPIError(Exception):
         return 'Error returned from TTlockAPI: Error_code {} - {}'.format(self.error_code,self.menssage)
 
 class TTLock():
+
+    @classmethod
+    def __is_erro_code_success__(cls,erroCode=None):
+        if not erroCode and erroCode==0:
+            return True
+        else:
+            return False
+
+    @classmethod
+    def __send_request__(cls, _url_request):
+        _headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        _response = requests.request('GET',_url_request, headers=_headers)
+        _response.raise_for_status()
+        if _response.json().get(ERROR_CODE_FIELD) :
+            raise TTlockAPIError(error_code=_response.json().get(ERROR_CODE_FIELD),menssage=_response.json().get(MENSSAGE_FIELD))
+
+        return _response
+
+    @classmethod
+    def create_user(cls,clientId,clientSecret,username,password):
+        if (not password.islower()) or password.len()>32 or username.len()==0 or username.strip()=='':
+            raise TTlockAPIError()
+
+        _url_request = USER_CREATE_URL.format(
+            API_URI,
+            USER_RESOURCE,
+            clientId,
+            clientSecret,
+            username,
+            hashlib.md5(password.encode()).hexdigest(),
+            TTLock.__get_current_millis__(),
+        )
+
+        return TTLock.__send_request__(_url_request).json()
+
+    @classmethod
+    def get_token(cls,clientId,clientSecret,username,password,redirect_uri):
+        _url_request = TOKEN_CREATE_URL.format(
+            TOKEN_RESOURCE,
+            clientId,
+            clientSecret,
+            username,
+            hashlib.md5(password.encode()).hexdigest(),
+            redirect_uri,
+        )
+
+        return TTLock.__send_request__(_url_request).json()
+    
+    @classmethod
+    def refresh_token(cls,clientId,clientSecret,refresh,redirect_uri):
+        _url_request = TOKEN_REFRESH_URL.format(
+            TOKEN_RESOURCE,
+            clientId,
+            clientSecret,
+            refresh,
+            redirect_uri,
+        )
+
+        return TTLock.__send_request__(_url_request).json()
+
+    @classmethod
+    def __verify_page__(cls,pageNo, totalPages):
+        return pageNo<=totalPages
+    
+    @classmethod
+    def __get_current_millis__(cls):
+        return int(round(time.time() * 1000))
+
     def __init__(self, clientId=None,accessToken=None):
         self.clientId = clientId
         self.accessToken = accessToken
@@ -17,7 +86,7 @@ class TTLock():
     def get_gateway_generator(self,pageSize=20):
         pageNo = 1
         totalPages = 1
-        while self.__verify_page__(pageNo, totalPages):
+        while TTLock.__verify_page__(pageNo, totalPages):
             _url_request = GATEWAY_LIST_URL.format(
                 API_URI,
                 GATEWAY_LIST_RESOURCE,
@@ -25,20 +94,13 @@ class TTLock():
                 self.accessToken,
                 pageNo,
                 pageSize,
-                self.__get_current_millis__(),
+                TTLock.__get_current_millis__(),
             )
-            _response = self.__send_request__(_url_request).json()
+            _response = TTLock.__send_request__(_url_request).json()
             for gateway in _response.get(LIST_FIELD):
                 yield gateway
             totalPages = _response.get(PAGES_FIELD)
             pageNo=pageNo+1
-
-    @classmethod
-    def __verify_page__(cls,pageNo, totalPages):
-        return pageNo<=totalPages
-
-    def __get_current_millis__(self):
-        return int(round(time.time() * 1000))
 
     def get_locks_per_gateway_generator(self,gatewayId=None):
         if not gatewayId:
@@ -50,10 +112,10 @@ class TTLock():
             self.clientId,
             self.accessToken,
             gatewayId,
-            self.__get_current_millis__(),
+            TTLock.__get_current_millis__(),
         )
         
-        for lock in self.__send_request__(_url_request).json().get(LIST_FIELD):
+        for lock in TTLock.__send_request__(_url_request).json().get(LIST_FIELD):
             yield lock
 
     def get_lock_records_generator(self,lockId=None,pageSize=20,startDate=0,endDate=0):
@@ -62,7 +124,7 @@ class TTLock():
 
         pageNo = 1
         totalPages = 1
-        while self.__verify_page__(pageNo, totalPages):
+        while TTLock.__verify_page__(pageNo, totalPages):
             _url_request = LOCK_RECORDS_URL.format(
                 API_URI,
                 LOCK_RECORDS_RESOURCE,
@@ -73,9 +135,9 @@ class TTLock():
                 pageSize,
                 startDate,
                 endDate,
-                self.__get_current_millis__(),
+                TTLock.__get_current_millis__(),
             )
-            _response = self.__send_request__(_url_request).json()
+            _response = TTLock.__send_request__(_url_request).json()
             for records in _response.get(LIST_FIELD):
                 yield records
             totalPages = _response.get(PAGES_FIELD)
@@ -90,9 +152,9 @@ class TTLock():
             self.clientId,
             self.accessToken,
             lockId,
-            self.__get_current_millis__(),
+            TTLock.__get_current_millis__(),
         )
-        return self.__send_request__(_url_request).json().get(STATE_FIELD)
+        return TTLock.__send_request__(_url_request).json().get(STATE_FIELD)
 
     def lock_electric_quantity(self,lockId=None):
         if not lockId:
@@ -103,9 +165,9 @@ class TTLock():
             self.clientId,
             self.accessToken,
             lockId,
-            self.__get_current_millis__(),
+            TTLock.__get_current_millis__(),
         )
-        return self.__send_request__(_url_request).json().get(ELECTRIC_QUANTITY_FIELD)
+        return TTLock.__send_request__(_url_request).json().get(ELECTRIC_QUANTITY_FIELD)
     
     def lock(self,lockId=None):
         if not lockId:
@@ -117,9 +179,9 @@ class TTLock():
             self.clientId,
             self.accessToken,
             lockId,
-            self.__get_current_millis__(),
+            TTLock.__get_current_millis__(),
         )
-        return self.__is_erro_code_success__(self.__send_request__(_url_request).json().get(ERROR_CODE_FIELD))
+        return TTLock.__is_erro_code_success__(TTLock.__send_request__(_url_request).json().get(ERROR_CODE_FIELD))
 
     def unlock(self,lockId=None):
         if not lockId:
@@ -131,22 +193,6 @@ class TTLock():
             self.clientId,
             self.accessToken,
             lockId,
-            self.__get_current_millis__(),
+            TTLock.__get_current_millis__(),
         )
-        return self.__is_erro_code_success__(self.__send_request__(_url_request).json().get(ERROR_CODE_FIELD))
-
-
-    def __is_erro_code_success__(self,erroCode=None):
-        if not erroCode and erroCode==0:
-            return True
-        else:
-            return False
-
-    def __send_request__(self, _url_request):
-        _headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        _response = requests.request('GET',_url_request, headers=_headers)
-        _response.raise_for_status()
-        if _response.json().get(ERROR_CODE_FIELD) :
-            raise TTlockAPIError(error_code=_response.json().get(ERROR_CODE_FIELD),menssage=_response.json().get(MENSSAGE_FIELD))
-
-        return _response
+        return TTLock.__is_erro_code_success__(TTLock.__send_request__(_url_request).json().get(ERROR_CODE_FIELD))
