@@ -17,27 +17,38 @@ https://open.ttlock.com/manager/apps/create
 ```
 - The application needs to be reviewed. After it is reviewed, all the APIs are available.
 
-4. Create a user for this application:
+4. Create a user for this application and get the access token:
 ```
-$ curl --location --request POST 'https://api.ttlock.com/v3/user/register?clientId=YOUR_APP_CLIENT_ID&clientSecret=YOUR_APP_CLIENTSECRET&username=NEW_NAME_FOR_YOUR_USER&password=NEW_PASS_FOR_YOUR_USER&date=CURRENTMILLIS' \
---header 'Content-Type: application/x-www-form-urlencoded' \
+$ pip install ttlockio
+$ create_user_and_access_token YOUR_APP_CLIENT_ID YOUR_APP_CLIENTSECRET NEW_NAME_FOR_YOUR_USER NEW_PASS_FOR_YOUR_USER https://yoursitedomain.com/
 ```
-- ATTENTION: you need pass the NEW_PASS_FOR_YOUR_USER with max 32 chars, low case and md5 encrypted
+- ATTENTION: you need pass the NEW_PASS_FOR_YOUR_USER with max 32 chars, low case
+
+- Return:
+```
+[
+  {
+    "ttlockclientapp": "YOUR_APP_CLIENT_ID",
+    "ttlocktoken": "YOUR_ACCESS_TOKEN",
+    "username": "YOUR_APP_NAME_CONCAT_NEW_NAME_FOR_YOUR_USER",
+    "refreshtoken": "YOUR_REFRESH_TOKEN"
+  }
+]
+
+```
 
 5. Test your USER:
-- Download TTLock App at your cellphones app store. Log in with your UserName and Pass created on step four. Add your ttlock gateway and locks.
+- Download TTLock App at your cellphones app store. Log in with your YOUR_APP_NAME_CONCAT_NEW_NAME_FOR_YOUR_USER and NEW_PASS_FOR_YOUR_USER created on step four. 
+- Add your TTLock gateways and locks.
 
-6. Get the AccessToken
-
-```
-$ curl --location --request POST 'https://api.ttlock.com/oauth2/token?client_id=YOUR_APP_CLIENT_ID&client_secret=YOUR_APP_CLIENTSECRET&username=NAME_FOR_YOUR_USER_CREATE_ON_LAST_STEP&password=NEW_PASS_FOR_YOUR_USER_CREATE_ON_LAST_STEP&grant_type=password&redirect_uri=https://yourdomain.com/' \
---header 'Content-Type: application/x-www-form-urlencoded' \
-```
-
-7. Install and Use 
+6. Install and Use 
 ```
 $ pip install ttlockio 
 $ python3
 >>import ttlockwrapper
->>TTLock(clientId=YOUR_CLIENT_ID,accessToken=YOUR_ACCESS_TOKEN).get_gateway_generator()
+>>gateways = list(ttlockwrapper.TTLock(clientId='YOUR_APP_CLIENT_ID',accessToken='YOUR_ACCESS_TOKEN').get_gateway_generator())
+>>print('Gateway ID and Gateway Lock quantity: {}, {}'.format(gateways[0].get('gatewayId'),gateways[0].get('lockNum')))
 ```
+
+7. Examples
+- See example dir at this repo.

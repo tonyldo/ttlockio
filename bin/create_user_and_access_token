@@ -23,13 +23,13 @@ password = str(sys.argv[4])
 redirect_url = str(sys.argv[5])
 result = None
 result_user=TTLock.create_user(clientId,clientSecret,user,password).get(constants.USER_FIELD)
-if result_user==user:
-    result = TTLock.get_token(clientId,clientSecret,user,password,redirect_url)
+if result_user.find(user):
+    result = TTLock.get_token(clientId,clientSecret,result_user,password,redirect_url)
 else:
     raise TTlockAPIError()
 
 if result.get(constants.ACCESS_TOKEN_FIELD):
-    result_json = '[{"ttlockclientapp":{}, ttlocktoken: {}, username: {},refreshtoken: {}}]'
+    result_json = '[{{"ttlockclientapp":"{}", "ttlocktoken": "{}", "username": "{}","refreshtoken": "{}"}}]'
     parsed = json.loads(result_json.format(clientId,result.get(constants.ACCESS_TOKEN_FIELD),result_user,result.get(constants.REFRESH_TOKEN_FIELD)))
     print(json.dumps(parsed, indent=2, sort_keys=False))
 else:

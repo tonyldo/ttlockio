@@ -5,9 +5,9 @@ from ttlockwrapper import TTLock
 
 """ 
 To call this script:
-$ git clone this_repo
-$ pip3 install -r requirements.txt
-$ python3 examples/locks_states_from_account.py YOUR_TTLOCK_CLIENT_ID YOUR_TTLOCK_TOKEN
+- Copy this file to your computer
+$ pip3 install ttlockio
+$ python3 locks_states_from_account.py YOUR_TTLOCK_CLIENT_ID YOUR_TTLOCK_TOKEN
 """
 
 if __name__ == "__main__":

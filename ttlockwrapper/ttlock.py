@@ -20,9 +20,9 @@ class TTLock():
             return False
 
     @classmethod
-    def __send_request__(cls, _url_request):
+    def __send_request__(cls, _url_request,method='GET'):
         _headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        _response = requests.request('GET',_url_request, headers=_headers)
+        _response = requests.request(method,_url_request, headers=_headers)
         _response.raise_for_status()
         if _response.json().get(ERROR_CODE_FIELD) :
             raise TTlockAPIError(error_code=_response.json().get(ERROR_CODE_FIELD),menssage=_response.json().get(MENSSAGE_FIELD))
@@ -31,7 +31,7 @@ class TTLock():
 
     @classmethod
     def create_user(cls,clientId,clientSecret,username,password):
-        if (not password.islower()) or password.len()>32 or username.len()==0 or username.strip()=='':
+        if (not password.islower()) or len(password)>32 or len(username)==0 or username.strip()=='':
             raise TTlockAPIError()
 
         _url_request = USER_CREATE_URL.format(
@@ -57,7 +57,7 @@ class TTLock():
             redirect_uri,
         )
 
-        return TTLock.__send_request__(_url_request).json()
+        return TTLock.__send_request__(_url_request,'POST').json()
     
     @classmethod
     def refresh_token(cls,clientId,clientSecret,refresh,redirect_uri):
@@ -69,7 +69,7 @@ class TTLock():
             redirect_uri,
         )
 
-        return TTLock.__send_request__(_url_request).json()
+        return TTLock.__send_request__(_url_request,'POST').json()
 
     @classmethod
     def __verify_page__(cls,pageNo, totalPages):

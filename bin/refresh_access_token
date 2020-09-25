@@ -21,7 +21,6 @@ redirect_url = str(sys.argv[4])
 
 result=TTLock.refresh_token(clientId,clientSecret,refreshToken,redirect_url)
 if result.get(constants.EXPIRE_TIME_TOKEN_FIELD):
-    parsed = json.loads(result)
-    print(json.dumps(parsed, indent=2, sort_keys=False))
+    print(json.dumps(result, indent=2, sort_keys=False))
 else:
     raise TTlockAPIError()
