@@ -3,17 +3,17 @@ Python wrapper for TTLock API
 
 1. Register a developer account
 ```
-https://open.ttlock.com/reg
+https://euopen.ttlock.com/register
 ```
 
 2. Log in 
 ```
-https://open.ttlock.com/login
+https://euopen.ttlock.com/login
 ```
 
 3. Create application:
 ```
-https://open.ttlock.com/manager/apps/create
+https://euopen.ttlock.com/CreateApplication
 ```
 - The application needs to be reviewed. After it is reviewed, all the APIs are available.
 
