@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ttlockio"
-version = "0.3.0"
+version = "0.3.1"
 description = "Python wrapper for TTLock API"
 readme = "README.md"
 authors = [{ name = "Antonio Campos", email = "tonyldo@gmail.com" },]
