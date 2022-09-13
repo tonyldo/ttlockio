@@ -47,13 +47,16 @@ class TTLock():
         return TTLock.__send_request__(_url_request).json()
 
     @classmethod
-    def get_token(cls,clientId,clientSecret,username,password,redirect_uri):
+    def get_token(cls,clientId,clientSecret,username,password,redirect_uri,hashed_password=False):
+        if not hashed_password:
+            password = hashlib.md5(password.encode()).hexdigest()
+            
         _url_request = TOKEN_CREATE_URL.format(
             TOKEN_RESOURCE,
             clientId,
             clientSecret,
             username,
-            hashlib.md5(password.encode()).hexdigest(),
+            password,
             redirect_uri,
         )
 
