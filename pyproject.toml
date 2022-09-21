@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ttlockio"
-version = "0.3.2"
+version = "0.3.3"
 description = "Python wrapper for TTLock API"
 readme = "README.md"
 authors = [{ name = "Antonio Campos", email = "tonyldo@gmail.com" },]
@@ -27,7 +27,7 @@ dependencies = [
 Homepage = "https://github.com/tonyldo/ttlock.io"
 
 [project.scripts]
-create_access_token = "bin.create_access_token"
-create_user_and_access_token = "bin.create_user_and_access_token"
-refresh_access_token = "bin.refresh_access_token"
+create_access_token = "ttlockwrapper:TTLock.get_token"
+create_user = "ttlockwrapper:TTLock.create_user"
+refresh_access_token = "ttlockwrapper:TTLock.refresh_token"
     
