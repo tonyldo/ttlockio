@@ -130,3 +130,5 @@ dmypy.json
 
 #VsCode
 .vscode/
+/.project
+/.pydevproject

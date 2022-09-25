@@ -1,3 +1,4 @@
+import argparse
 import requests
 import hashlib
 import time
@@ -29,6 +30,37 @@ class TTLock():
 
         return _response
 
+
+    def create_user_script_entry():
+        parser = argparse.ArgumentParser(description='Create TTLock User.')
+        parser.add_argument('clientId', metavar='clientId', help='TTLock Client Id')
+        parser.add_argument('clientSecret', metavar='clientSecret', help='TTLock Client Secret')
+        parser.add_argument('username', metavar='username', help='Your new users username')
+        parser.add_argument('password', metavar='password', help='Your new users password')
+        parser.add_argument('--redirect_url', help='Rediect URL for your application', required=False, default="")   
+        
+        parser.add_argument('--token', action='store_const', const=1, help='Generate Access Token')
+        
+        args = parser.parse_args()
+        result = TTLock.create_user(args.clientId,args.clientSecret,args.username,args.password)
+        print(result)
+
+        if args.token:
+            print(TTLock.get_token(args.clientId,args.clientSecret,result["username"],args.password,args.redirect_url))
+
+
+    def refresh_token_script_entry():
+        parser = argparse.ArgumentParser(description='Refresh TTLock Access Token.')
+        parser.add_argument('clientId', metavar='clientId', help='TTLock Client Id')
+        parser.add_argument('clientSecret', metavar='clientSecret', help='TTLock Client Secret')
+        parser.add_argument('refresh', metavar='refresh', help='Your refresh token')
+        parser.add_argument('--redirect_url', help='Rediect URL for your application', required=False, default="")   
+                
+        args = parser.parse_args()
+        result = TTLock.refresh_token(args.clientId,args.clientSecret,args.refresh,args.redirect_url)
+        print(result)
+        
+
     @classmethod
     def create_user(cls,clientId,clientSecret,username,password):
         if (not password.islower()) or len(password)>32 or len(username)==0 or username.strip()=='':
@@ -45,6 +77,7 @@ class TTLock():
         )
 
         return TTLock.__send_request__(_url_request).json()
+
 
     @classmethod
     def get_token(cls,clientId,clientSecret,username,password,redirect_uri,hashed_password=False):

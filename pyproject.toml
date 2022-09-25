@@ -27,7 +27,6 @@ dependencies = [
 Homepage = "https://github.com/tonyldo/ttlock.io"
 
 [project.scripts]
-create_access_token = "ttlockwrapper:TTLock.get_token"
-create_user = "ttlockwrapper:TTLock.create_user"
-refresh_access_token = "ttlockwrapper:TTLock.refresh_token"
+create_user = "ttlockwrapper:TTLock.create_user_script_entry"
+refresh_access_token = "ttlockwrapper:TTLock.refresh_token_script_entry"
     
