@@ -18,24 +18,34 @@ https://euopen.ttlock.com/CreateApplication
 - The application needs to be reviewed. After it is reviewed, all the APIs are available.
 
 4. Create a user for this application and get the access token:
+
 ```
 $ pip install ttlockio
-$ create_user_and_access_token YOUR_APP_CLIENT_ID YOUR_APP_CLIENTSECRET NEW_NAME_FOR_YOUR_USER NEW_PASS_FOR_YOUR_USER https://yoursitedomain.com/
+$ create_user YOUR_APP_CLIENT_ID YOUR_APP_CLIENT_SECRET USERNAME PASSWORD --token
 ```
-- ATTENTION: you need pass the NEW_PASS_FOR_YOUR_USER with max 32 chars, low case
+
+
+`--token` is an optional parameter; `create_user -h` for usage. if not used the user will be created without an access token. You need pass the PASSWORD with max 32 chars, low case
 
 - Return:
-```
-[
-  {
-    "ttlockclientapp": "YOUR_APP_CLIENT_ID",
-    "ttlocktoken": "YOUR_ACCESS_TOKEN",
-    "username": "YOUR_APP_NAME_CONCAT_NEW_NAME_FOR_YOUR_USER",
-    "refreshtoken": "YOUR_REFRESH_TOKEN"
-  }
-]
 
 ```
+{'username': 'prefixed_user'}
+{'access_token': 'xxx', 'uid': xxx, 'refresh_token': 'xxx', 'openid': xxx, 'scope': 'user,key,room', 'token_type': 'Bearer', 'expires_in': 7776000}
+```
+
+5a. Refresh the access token when required
+
+```
+refresh_access_token YOUR_APP_CLIENT_ID YOUR_APP_CLIENT_SECRET YOUR_REFRESH_TOKEN
+```
+
+- Return:
+
+```
+{'access_token': 'xxx', 'refresh_token': 'xxx', 'openid': xxx, 'scope': 'user,key,room', 'token_type': 'Bearer', 'expires_in': 7776000}
+```
+
 
 5. Test your USER:
 - Download TTLock App at your cellphones app store. Log in with your YOUR_APP_NAME_CONCAT_NEW_NAME_FOR_YOUR_USER and NEW_PASS_FOR_YOUR_USER created on step four. 
