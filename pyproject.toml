@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ttlockio"
-version = "0.3.3"
+version = "0.3.4"
 description = "Python wrapper for TTLock API"
 readme = "README.md"
 authors = [{ name = "Antonio Campos", email = "tonyldo@gmail.com" },]
@@ -17,9 +17,9 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "pytest==5.4.1",
-    "requests==2.23.0",
-    "requests-mock==1.7.0",
+    "pytest>=5.4.1",
+    "requests>=2.23.0",
+    "requests-mock>=1.7.0",
     "pytest-mock",
 ]
 
